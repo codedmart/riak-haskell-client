@@ -28,6 +28,7 @@ module Network.Riak.Types.Internal
     , BucketType
     , Key
     , Index
+    , MaxResults
     , IndexQuery(..)
     , IndexValue(..)
     , Tag
@@ -63,6 +64,7 @@ import           GHC.Generics (Generic)
 import qualified Network.Riak.Protocol.YzIndex as YzIndex
 import           Network.Socket (HostName, ServiceName, Socket)
 import           Text.ProtocolBuffers (ReflectDescriptor, Wire)
+import           Text.ProtocolBuffers.Header (Word32)
 
 
 -- | A client identifier.  This is used by the Riak cluster when
@@ -148,13 +150,16 @@ type Key = ByteString
 -- | Name of a secondary index
 type Index = ByteString
 
+-- | Name of max results
+type MaxResults = Word32
+
 -- | Index query. Can be exact or range, int or bin. Index name should
 -- not contain the "_bin" or "_int" part, since it's determined from
 -- data constructor.
-data IndexQuery = IndexQueryExactInt !Index !Int
-                | IndexQueryExactBin !Index !ByteString
-                | IndexQueryRangeInt !Index !Int !Int
-                | IndexQueryRangeBin !Index !ByteString !ByteString
+data IndexQuery = IndexQueryExactInt !Index !Int !(Maybe MaxResults)
+                | IndexQueryExactBin !Index !ByteString !(Maybe MaxResults)
+                | IndexQueryRangeInt !Index !Int !Int !(Maybe MaxResults)
+                | IndexQueryRangeBin !Index !ByteString !ByteString !(Maybe MaxResults)
     deriving (Show, Eq)
 
 data IndexValue = IndexInt !Index !Int

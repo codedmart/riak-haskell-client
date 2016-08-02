@@ -123,25 +123,25 @@ getByIndex :: Maybe BucketType -> Bucket -> IndexQuery
            -> Index.IndexRequest
 getByIndex bucketType bucket q =
     case q of
-      IndexQueryExactInt index key ->
+      IndexQueryExactInt index key mresults ->
           req (index <> "_int") (showIntKey key)
-              IndexQueryType.Eq Nothing Nothing
-      IndexQueryExactBin index key ->
+              IndexQueryType.Eq Nothing Nothing mresults
+      IndexQueryExactBin index key mresults ->
           req (index <> "_bin") (showBsKey $ key)
-              IndexQueryType.Eq Nothing Nothing
-      IndexQueryRangeInt index from to ->
+              IndexQueryType.Eq Nothing Nothing mresults
+      IndexQueryRangeInt index from to mresults ->
           req (index <> "_int") Nothing
-              IndexQueryType.Range (showIntKey from) (showIntKey to)
-      IndexQueryRangeBin index from to ->
+              IndexQueryType.Range (showIntKey from) (showIntKey to) mresults
+      IndexQueryRangeBin index from to mresults ->
           req (index <> "_bin") Nothing
-              IndexQueryType.Range (showBsKey from) (showBsKey to)
+              IndexQueryType.Range (showBsKey from) (showBsKey to) mresults
   where
     escapedBucketType = case bucketType of
       Nothing -> Nothing
       Just bt -> Just $ escape bt
     showIntKey = Just . escape . B8.pack . show
     showBsKey = Just . escape
-    req i k qt rmin rmax =
+    req i k qt rmin rmax mres =
       Index.IndexRequest { Index.bucket = escape bucket
                          , Index.index = escape i
                          , Index.qtype = qt
@@ -150,7 +150,7 @@ getByIndex bucketType bucket q =
                          , Index.range_max = rmax
                          , Index.return_terms = Nothing
                          , Index.stream = Nothing
-                         , Index.max_results = Nothing
+                         , Index.max_results = mres
                          , Index.continuation = Nothing
                          , Index.timeout = Nothing
                          , Index.type' = escapedBucketType
@@ -253,7 +253,3 @@ search q ix = SearchQueryRequest.SearchQueryRequest {
 
 getIndex :: Maybe Index -> YzIndex.YzIndexGetRequest
 getIndex = YzIndex.YzIndexGetRequest
-
-
-
-

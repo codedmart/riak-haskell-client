@@ -21,6 +21,7 @@ module Network.Riak.Types
     , BucketType
     , Bucket
     , Key
+    , MaxResults
     , Tag
     , VClock(..)
     , Job(..)
