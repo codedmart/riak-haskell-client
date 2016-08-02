@@ -176,10 +176,10 @@ get :: (IsContent c) => Connection -> Maybe BucketType -> Bucket -> Key -> R
 get conn btype bucket key r = getResp =<< exchangeMaybe conn (Req.get btype bucket key r)
 
 -- | Retrieve list of keys matching some index query.
-getByIndex :: Connection -> Bucket -> IndexQuery
+getByIndex :: Connection -> Maybe BucketType-> Bucket -> IndexQuery
            -> IO [Key]
-getByIndex conn b indq =
-    getByIndexResp =<< exchangeMaybe conn (Req.getByIndex b indq)
+getByIndex conn bt b indq =
+    getByIndexResp =<< exchangeMaybe conn (Req.getByIndex bt b indq)
 
 getMany :: (IsContent c) => Connection
         -> Maybe BucketType -> Bucket -> [Key] -> R

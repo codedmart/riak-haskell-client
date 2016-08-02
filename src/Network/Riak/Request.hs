@@ -119,9 +119,9 @@ get btype bucket key r = Get.GetRequest {
 
 -- | Create a secondary index request. Bucket, key and index names and
 -- values are URL-escaped.
-getByIndex :: Bucket -> IndexQuery
+getByIndex :: Maybe BucketType -> Bucket -> IndexQuery
            -> Index.IndexRequest
-getByIndex bucket q =
+getByIndex bucketType bucket q =
     case q of
       IndexQueryExactInt index key ->
           req (index <> "_int") (showIntKey key)
@@ -136,6 +136,9 @@ getByIndex bucket q =
           req (index <> "_bin") Nothing
               IndexQueryType.Range (showBsKey from) (showBsKey to)
   where
+    escapedBucketType = case bucketType of
+      Nothing -> Nothing
+      Just bt -> Just $ escape bt
     showIntKey = Just . escape . B8.pack . show
     showBsKey = Just . escape
     req i k qt rmin rmax =
@@ -150,7 +153,7 @@ getByIndex bucket q =
                          , Index.max_results = Nothing
                          , Index.continuation = Nothing
                          , Index.timeout = Nothing
-                         , Index.type' = Nothing
+                         , Index.type' = escapedBucketType
                          , Index.term_regex = Nothing
                          , Index.pagination_sort = Nothing
                          }
